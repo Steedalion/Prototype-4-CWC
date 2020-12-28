@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
 	float movementAxis;
 	public float movementSpeed;
 	GameObject focalPoint;
+	bool hasPowerup;
+	public float powerupStrength = 100;
+	public GameObject powerupIndicator;
     // Start is called before the first frame update
     void Start()
 	{
@@ -34,6 +37,10 @@ public class PlayerController : MonoBehaviour
 	    {
 	    	rb.AddForce(-focalPoint.transform.forward * movementAxis * movementSpeed * Time.deltaTime);
 	    }
+	    if(hasPowerup)
+	    {
+	    	powerupIndicator.transform.position = transform.position - new Vector3(0,0.5f, 0);
+	    }
     }
 	void UpdateMoveDirection(float axis)
 	{
@@ -50,5 +57,45 @@ public class PlayerController : MonoBehaviour
 	protected void OnDisable()
 	{
 		player.Disable();
+	}
+	// OnTriggerEnter is called when the Collider other enters the trigger.
+	protected void OnTriggerEnter(Collider other)
+	{
+		if(other.CompareTag("Powerup"))
+		{
+			EnablePowerup();
+			Destroy(other.gameObject);
+			StartCoroutine(PowerupDelay());
+		}
+	}
+	IEnumerator PowerupDelay()
+	{
+		yield return new WaitForSeconds (7);
+		DisablePowerup();
+	}
+	void EnablePowerup()
+	{
+		powerupIndicator.SetActive(true);
+		hasPowerup = true;
+	}
+	void DisablePowerup()
+	{
+		powerupIndicator.SetActive(false);
+		hasPowerup = false;
+	}
+	// OnCollisionEnter is called when this collider/rigidbody has begun touching another rigidbody/collider.
+	protected IEnumerator OnCollisionEnter(Collision collisionInfo)
+	{
+		
+		if(hasPowerup && collisionInfo.other.CompareTag("Enemy"))
+		{
+			GameObject enemy = collisionInfo.other.gameObject;
+			Rigidbody body = enemy.GetComponent<Rigidbody>();
+			Debug.Log("Boom");
+			Vector3 away = (enemy.transform.position - transform.position).normalized;
+			body.AddForce(away * powerupStrength, ForceMode.Impulse);
+			
+		}
+		yield return null;
 	}
 }
