@@ -23,9 +23,10 @@ public class SpawnManager : MonoBehaviour
     
 	IEnumerator Spawn()
 	{
-		while (true){}
-		Vector3 spawnPos = new Vector3(Random.Range(spawnMin, spawnMax), Random.Range(spawnMin, spawnMax), Random.Range(spawnMin, spawnMax));
-		Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-		yield return wait;
+		while (true){
+			Vector3 spawnPos = new Vector3(Random.Range(spawnMin, spawnMax), Random.Range(0, spawnMax), Random.Range(spawnMin, spawnMax));
+			Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+			yield return wait;
+		}
 	}
 }
